@@ -5,8 +5,8 @@ provides phoneme-level timestamps and Oculus visemes for lip-sync, in addition
 to audio output (WAV/PCM). It uses
 [Kokoro](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX-timestamped)
 neural model and voices, and inference can run entirely in
-the browser (via WebGPU or WASM), or alternatively
-on a Node.js WebSocket/RESTful server (CPU-based).
+the browser (WebGPU or WASM), or alternatively
+on a Node.js WebSocket/RESTful server (WebGPU or CPU).
 
 - **Pros**: Free. Doesn't require a server in in-browser mode.
 WebGPU support. Uses neural voices with a StyleTTS 2 model.
@@ -20,13 +20,11 @@ module.
 the WASM fallback is much slower.
 Kokoro is a lightweight model, but it still takes time to
 load the first time and consumes a lot of memory.
-WebGPU support in onnx-runtime-node is still experimental
-and not released, so server-side inference is relatively slow.
 English is currently the only supported language.
 
 **👉 If you're using a desktop browser, check out the
-[IN-BROWSER DEMO](https://met4citizen.github.io/HeadTTS/)!**
-If your browser doesn't have WebGPU support enabled,
+[IN-BROWSER DEMO](https://met4citizen.github.io/HeadTTS/)!** - If
+your browser doesn't have WebGPU support enabled,
 the demo app uses WASM as a fallback.
 
 The project uses [websockets/ws](https://github.com/websockets/ws) (MIT License),
@@ -65,12 +63,12 @@ set the `workerModule` and `dictionaryURL` options explicitly,
 as the default relative paths will likely not work:
 
 ```javascript
-import { HeadTTS } from "https://cdn.jsdelivr.net/npm/@met4citizen/headtts@1.2/+esm";
+import { HeadTTS } from "https://cdn.jsdelivr.net/npm/@met4citizen/headtts@1.3/+esm";
 
 const headtts = new HeadTTS({
   /* ... */
-  workerModule: "https://cdn.jsdelivr.net/npm/@met4citizen/headtts@1.2/modules/worker-tts.mjs",
-  dictionaryURL: "https://cdn.jsdelivr.net/npm/@met4citizen/headtts@1.2/dictionaries/"
+  workerModule: "https://cdn.jsdelivr.net/npm/@met4citizen/headtts@1.3/modules/worker-tts.mjs",
+  dictionaryURL: "https://cdn.jsdelivr.net/npm/@met4citizen/headtts@1.3/dictionaries/"
 });
 ```
 
@@ -82,7 +80,7 @@ Option | Description | Default value
 `endpoints` | List of WebSocket/RESTful servers or backends `webgpu` or `wasm`, in order of priority. If one fails, the next is used.  | `["webgpu",`<br>` "wasm"]`
 `audioCtx` | Audio context for creating audio buffers. If `null`, a new one is created. | `null`
 `workerModule` | URL of the HeadTTS Web Worker module. Enables use from a CDN. If set to `null`, the relative path/file `./worker-tts.mjs` is used. | `null`
-`transformersModule` | URL of the `transformers.js` module to load. | `"https://cdn.jsdelivr.net/npm/`<br>`@huggingface/transformers@3.7.2`<br>`/dist/transformers.min.js"`
+`transformersModule` | URL of the `transformers.js` module to load. | `"https://cdn.jsdelivr.net/npm/`<br>`@huggingface/transformers@4.0.0`<br>`/dist/transformers.min.js"`
 `model` | Kokoro text-to-speech ONNX model (timestamped) used for in-browser inference. | `"onnx-community/`<br>`Kokoro-82M-v1.0-ONNX-timestamped"`
 `dtypeWebgpu` | Data type precision for WebGPU inference: `"fp32"` (recommended), `"fp16"`, `"q8"`, `"q4"`, or `"q4f16"`.  | `"fp32"`
 `dtypeWasm` | Data type precision for WASM inference: `"fp32"`, `"fp16"`, `"q8"`, `"q4"`, or `"q4f16"`. | `"q4"`
@@ -310,7 +308,7 @@ Property|Description|Default
 `tts.transformersModule` | Name of the transformers.js module to use. | `"@huggingface/transformers"`
 `tts.model` | The timestamped Kokoro TTS ONNX model. | `"onnx-community/`<br>`Kokoro-82M-v1.0-ONNX-timestamped"`
 `tts.dtype` | The data type precision used for inference. Available options: `"fp32"`, `"fp16"`, `"q8"`, `"q4"`, or `"q4f16"`.  | `"fp32"`
-`tts.device` | Computation backend to use. Currently, the only available option for Node.js server is `"cpu"`.  | `"cpu"`
+`tts.device` | Computation backend to use: `"webgpu"` or `"cpu"`. NOTE: Node.js WebGPU implementation in Transformers.js is not thread safe, so we can only have one thread for WebGPU. Others will be automatically started as `"cpu"`. | `"webgpu"`
 `tts.styleDim` | The embedding dimension for style. | `256`
 `tts.audioSampleRate` | Audio sample rate in Hertz (Hz). | `24000`
 `tts.frameRate` | Frame rate in frames per second (FPS). | `40`
@@ -526,27 +524,34 @@ ALUMIINI	FOLI	KATT	OKSI	PAPE	SEOS	VENE	VUOK
 
 # Appendix C: Latency
 
-In-browser TTS on WebGPU is 3x faster than
-real-time and approximately 10x faster than WASM. CPU inference on
-a Node.js server performs surprisingly well, but increasing the thread
-pool size worsens performance, so we need to wait for WebGPU support.
-Quantization makes no significant difference, so I recommend using 32-bit
-floating point precision (fp32) for the best audio quality unless
-memory consumption becomes a concern.
+In-browser TTS using WebGPU runs approximately 3x faster than real time
+and about 10x faster than WASM. CPU-based inference on a Node.js server
+performs surprisingly well. However, increasing the thread pool size
+degrades performance. WebGPU inference on a Node.js server is slightly
+faster than CPU inference, but it supports only a single dedicated WebGPU
+thread. On Metal, the fastest HeadTTS configuration is WebGPU with two
+threads where the second thread automatically falls back to CPU execution.
+
+I recommend using 32-bit floating point precision (fp32) for the best
+audio quality unless memory consumption becomes a concern.
 
 Unofficial latency results using my own
 [latency test app](https://github.com/met4citizen/HeadTTS/blob/main/tests/latency.html):
 
 TTS Engine/Setup |`FIL`<sup>\[1]</sup>|`FBL`<sup>\[2]</sup>|`RTF`<sup>\[3]</sup>
 ---|---|---|---
-HeadTTS, Chrome, WebGPU/fp32 | 8.6s | 852ms | 0.27
+HeadTTS, Chrome, WebGPU/fp32 | 8.6s | 852ms | **0.27**
 HeadTTS, Edge, WebGPU/fp32 | 8.8s | 858ms | 0.28
 HeadTTS, Safari, WebGPU/fp32 | 25.8s | 2437ms | 0.82
 HeadTTS, Chrome, WASM/q4 | 45.4s | 4404ms | 1.45
 HeadTTS, Edge, WASM/q4 | 45.5s | 4392ms | 1.45
 HeadTTS, Safari, WASM/q4 | 45.6s | 4447ms | 1.46
+HeadTTS, WebSocket, WebGPU/fp32, 1 thread | 6.6s | 719ms | 0.21
+HeadTTS, WebSocket, WebGPU/fp32, 2 threads | 3.8s | 742ms | **0.12**
 HeadTTS, WebSocket, CPU/fp32, 1 thread | 6.8s | 712ms | 0.22
 HeadTTS, WebSocket, CPU/fp32, 4 threads | 6.0s | 2341ms | 0.20
+HeadTTS, REST, WebGPU/fp32, 1 thread | 6.7s | 713ms | 0.21
+HeadTTS, REST, WebGPU/fp32, 2 threads | 3.6s | 717ms | **0.11**
 HeadTTS, REST, CPU/fp32, 1 thread | 7.0s | 793ms | 0.23
 HeadTTS, REST, CPU/fp32, 4 threads | 6.5s | 2638ms | 0.21
 ElevenLabs, WebSocket | 4.8s | 977ms | 0.20
@@ -567,27 +572,9 @@ solutions use streaming, some not.
 <sup>\[3]</sup> *Real-time factor* = Time to generate full audio / Duration of the full
 audio. If RTF < 1, synthesis is faster than real-time (i.e., good).
 
-<details>
-  <summary>CLICK HERE here to see the TEST SETUP.</summary>
-
 **Test setup**: Macbook Air M2 laptop, 8 cores, 16GB memory,
 macOS Tahoe 26.0, Metal2 GPU 10 cores, 300/50 Mbit/s internet connection.
 The latest Google Chrome, Edge, Safari desktop browsers.
 
 All test cases use WAV or raw PCM 16bit LE format and the "List 1" of the
 [Harvard Sentences](https://www.cs.columbia.edu/~hgs/audio/harvard.html):
-
-```text
-The birch canoe slid on the smooth planks.
-Glue the sheet to the dark blue background.
-It's easy to tell the depth of a well.
-These days a chicken leg is a rare dish.
-Rice is often served in round bowls.
-The juice of lemons makes fine punch.
-The box was thrown beside the parked truck.
-The hogs were fed chopped corn and garbage.
-Four hours of steady work faced us.
-A large size in stockings is hard to sell.
-```
-
-</details>
