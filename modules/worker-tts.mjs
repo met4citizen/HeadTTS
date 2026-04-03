@@ -4,6 +4,8 @@ import * as utils from "./utils.mjs";
 let StyleTextToSpeech2Model;
 let AutoTokenizer;
 let Tensor;
+let env;
+let LogLevel;
 
 // Status flags
 let filesProgress;
@@ -113,7 +115,11 @@ async function connect() {
 
   // Load modules dynamically
   try {
-    ({ StyleTextToSpeech2Model, AutoTokenizer, Tensor } = await import(settings.transformersModule));
+    ({ StyleTextToSpeech2Model, AutoTokenizer, Tensor, env, LogLevel } = await import(settings.transformersModule));
+    
+    // Set log level to ERROR
+    env.logLevel = LogLevel.ERROR;
+
   } catch(error) {
     console.error("HeadTTS Worker: Importing modules failed, error=", error);
     throw new Error("Importing modules failed.");

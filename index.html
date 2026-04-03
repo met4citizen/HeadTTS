@@ -202,7 +202,8 @@
 
       // Instantiate HeadTTS text-to-speech class
       headtts = new HeadTTS({
-        endpoints: ["webgpu", "ws://127.0.0.1:8882/", "wasm"], // Endpoints
+        transformersModule: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.0/dist/transformers.min.js",
+        endpoints: [ "webgpu", "wasm" ], // Endpoints
         languages: ["en-us"], // Language to be pre-loaded
         voices: ["af_bella","am_fenrir"], // Voices to be pre-loaded
         voiceURL: "../voices", // Use local voice files

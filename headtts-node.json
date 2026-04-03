@@ -16,7 +16,7 @@
 
     "model": "onnx-community/Kokoro-82M-v1.0-ONNX-timestamped",
     "dtype": "fp32",
-    "device": "cpu",
+    "device": "webgpu",
     "styleDim": 256,
     "frameRate": 40,
     "audioSampleRate": 24000,

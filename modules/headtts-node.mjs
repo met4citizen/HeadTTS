@@ -196,6 +196,12 @@ for( let i=0; i<config.tts.threads; i++ ) {
   [ "transformersModule", "model", "dtype", "device", "styleDim", "frameRate",
     "languages", "dictionaryPath", "voicePath", "voices", "audioSampleRate",
     "deltaStart", "deltaEnd", "trace" ].forEach( x => data[x] = config.tts[x] );
+  
+  // Node.js WebGPU is not thread safe, so we can only have one thread for WebGPU
+  if ( data.device === "webgpu" && i > 0 ) {
+    data.device = "cpu";
+  }
+
   const message = {
     type: "connect",
     data: data

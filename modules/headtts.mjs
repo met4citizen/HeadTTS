@@ -37,7 +37,7 @@ class HeadTTS {
       audioCtx: null,
 
       workerModule: null,
-      transformersModule: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js",
+      transformersModule: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.0.0/dist/transformers.min.js",
 
       model: "onnx-community/Kokoro-82M-v1.0-ONNX-timestamped",
       dtypeWebgpu: "fp32", // "fp32" | "fp16" | "q8" | "q4" | "q4f16"
