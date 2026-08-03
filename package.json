@@ -13,12 +13,8 @@
   ],
   "dependencies": {
     "@huggingface/transformers": "^4.0.0",
+    "onnxruntime-node": "^1.27.0",
     "ws": "^8.20.0"
-  },
-  "scripts": {
-    "start": "node ./modules/headtts-node.mjs",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "postinstall": "mkdir -p -m 777 ./node_modules/@huggingface/transformers/.cache"
   },
   "repository": {
     "type": "git",
@@ -40,5 +36,10 @@
   "homepage": "https://github.com/met4citizen/HeadTTS#readme",
   "devDependencies": {
     "jest": "^30.2.0"
+  },
+  "scripts": {
+    "start": "node ./modules/headtts-node.mjs",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "postinstall": "mkdir -p -m 777 ./node_modules/@huggingface/transformers/.cache"
   }
 }
