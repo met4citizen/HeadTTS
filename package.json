@@ -13,9 +13,11 @@
   ],
   "dependencies": {
     "@huggingface/transformers": "^4.0.0",
+    "express": "^5.2.1",
     "ws": "^8.20.0"
   },
   "scripts": {
+    "serve": "node ./app.js",
     "start": "node ./modules/headtts-node.mjs",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "postinstall": "mkdir -p -m 777 ./node_modules/@huggingface/transformers/.cache"
