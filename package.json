@@ -12,8 +12,8 @@
     "dictionaries/"
   ],
   "dependencies": {
-    "@huggingface/transformers": "^4.0.0",
-    "onnxruntime-node": "^1.27.0",
+    "@huggingface/transformers": "4.0.1",
+    "onnxruntime-node": "1.23.2",
     "ws": "^8.20.0"
   },
   "repository": {
