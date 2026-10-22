@@ -525,7 +525,7 @@ ALUMIINI	FOLI	KATT	OKSI	PAPE	SEOS	VENE	VUOK
 # Appendix C: Latency
 
 In-browser TTS using WebGPU runs approximately 3x faster than real time
-and about 10x faster than WASM. CPU-based inference on a Node.js server
+and about 5x faster than WASM. CPU-based inference on a Node.js server
 performs surprisingly well. However, increasing the thread pool size
 degrades performance. WebGPU inference on a Node.js server is slightly
 faster than CPU inference, but it supports only a single dedicated WebGPU
@@ -540,20 +540,20 @@ Unofficial latency results using my own
 
 TTS Engine/Setup |`FIL`<sup>\[1]</sup>|`FBL`<sup>\[2]</sup>|`RTF`<sup>\[3]</sup>
 ---|---|---|---
-HeadTTS, Chrome, WebGPU/fp32 | 8.6s | 852ms | **0.27**
-HeadTTS, Edge, WebGPU/fp32 | 8.8s | 858ms | 0.28
-HeadTTS, Safari, WebGPU/fp32 | 25.8s | 2437ms | 0.82
-HeadTTS, Chrome, WASM/q4 | 45.4s | 4404ms | 1.45
-HeadTTS, Edge, WASM/q4 | 45.5s | 4392ms | 1.45
-HeadTTS, Safari, WASM/q4 | 45.6s | 4447ms | 1.46
-HeadTTS, WebSocket, WebGPU/fp32, 1 thread | 6.6s | 719ms | 0.21
-HeadTTS, WebSocket, WebGPU/fp32, 2 threads | 3.8s | 742ms | **0.12**
-HeadTTS, WebSocket, CPU/fp32, 1 thread | 6.8s | 712ms | 0.22
-HeadTTS, WebSocket, CPU/fp32, 4 threads | 6.0s | 2341ms | 0.20
-HeadTTS, REST, WebGPU/fp32, 1 thread | 6.7s | 713ms | 0.21
-HeadTTS, REST, WebGPU/fp32, 2 threads | 3.6s | 717ms | **0.11**
-HeadTTS, REST, CPU/fp32, 1 thread | 7.0s | 793ms | 0.23
-HeadTTS, REST, CPU/fp32, 4 threads | 6.5s | 2638ms | 0.21
+HeadTTS, Chrome, WebGPU/fp32 | 7.2s | 718ms | **0.23**
+HeadTTS, Edge, WebGPU/fp32 | 7.5s | 736ms | 0.24
+HeadTTS, Safari, WebGPU/fp32 | 28.8s | 2528ms | 0.91
+HeadTTS, Chrome, WASM/q4 | 45.7s | 4474ms | 1.46
+HeadTTS, Edge, WASM/q4 | 45.5s | 4403ms | 1.45
+HeadTTS, Safari, WASM/q4 | 46.9s | 4462ms | 1.50
+HeadTTS, WebSocket, WebGPU/fp32, 1 thread | 11.6s | 1139ms | 0.37
+HeadTTS, WebSocket, WebGPU/fp32, 2 threads | 4.8s | 1195ms | **0.15**
+HeadTTS, WebSocket, CPU/fp32, 1 thread | 6.8s | 677ms | 0.21
+HeadTTS, WebSocket, CPU/fp32, 4 threads | 7.6s | 3082ms | 0.24
+HeadTTS, REST, WebGPU/fp32, 1 thread | 11.5s | 2328ms | 0.36
+HeadTTS, REST, WebGPU/fp32, 2 threads | 4.9s | 689ms | **0.15**
+HeadTTS, REST, CPU/fp32, 1 thread | 6.9s | 1416ms | 0.22
+HeadTTS, REST, CPU/fp32, 4 threads | 7.4s | 2731ms | 0.23
 ElevenLabs, WebSocket | 4.8s | 977ms | 0.20
 ElevenLabs, REST | 11.3s | 1097ms | 0.46
 ElevenLabs, REST, Flash_v2_5 | 4.8s | 581ms | 0.22
@@ -573,8 +573,10 @@ solutions use streaming, some not.
 audio. If RTF < 1, synthesis is faster than real-time (i.e., good).
 
 **Test setup**: Macbook Air M2 laptop, 8 cores, 16GB memory,
-macOS Tahoe 26.0, Metal2 GPU 10 cores, 300/50 Mbit/s internet connection.
-The latest Google Chrome, Edge, Safari desktop browsers.
+macOS Tahoe 26.6.2, Metal2 GPU 10 cores, 300/50 Mbit/s internet connection.
+The latest Google Chrome (156.0.8078.48),
+Edge (155.0.4283.62),
+Safari (26.6.2) desktop browsers.
 
 All test cases use WAV or raw PCM 16bit LE format and the "List 1" of the
 [Harvard Sentences](https://www.cs.columbia.edu/~hgs/audio/harvard.html):
