@@ -268,6 +268,8 @@ cd HeadTTS
 npm install
 ```
 
+Note: Microsoft has stopped publishing macOS x86_64 binaries for ONNX Runtime. If you are using an Intel Mac, you can try pinning "onnxruntime-node" to the older version "1.23.2" in the transformers dependencies. Workaround via [@piousbox](https://github.com/piousbox) (see [#12](https://github.com/met4citizen/HeadTTS/pull/12)).
+
 Start the server:
 
 ```bash
