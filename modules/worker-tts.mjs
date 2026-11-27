@@ -23,6 +23,16 @@ const voices = new Map(); // Voices
 let settings = {}; // Settings
 const queue = []; // Text-to-speech work queue
 
+// Force Kokoro's LSTM nodes onto CPU
+const forceCpuNodeNames = [
+  "/encoder/text_encoder/lstm/LSTM",
+  "/encoder/predictor/text_encoder/lstms.0/LSTM",
+  "/encoder/predictor/text_encoder/lstms.2/LSTM",
+  "/encoder/predictor/text_encoder/lstms.4/LSTM",
+  "/encoder/predictor/lstm/LSTM",
+  "/encoder/shared/LSTM",
+];
+
 // Different event handler for Node.js and browsers
 let eventHandler;
 let fileReader;
@@ -139,6 +149,12 @@ async function connect() {
       StyleTextToSpeech2Model.from_pretrained( settings.model, {
         dtype: settings.dtype,
         device: settings.device,
+        session_options: settings.device === "webgpu" ? {
+          executionProviders: [{
+            name: "webgpu",
+            forceCpuNodeNames,
+          }]
+        } : undefined,
         progress_callback: progress
       }),
       AutoTokenizer.from_pretrained( settings.model, {
