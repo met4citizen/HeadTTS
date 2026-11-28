@@ -385,15 +385,13 @@ if ( wss ) {
           if ( message.type === "setup" ) {
             // TODO: Check setup values
             Object.assign(ttsSetup, message.data);
-          } else {
+          } else if ( message.type === "synthesize" ) {
 
             // Set values
-            if ( message.type === "synthesize" ) {
-              message.data.voice = ttsSetup.voice.slice();
-              message.data.language = ttsSetup.language.slice();
-              message.data.speed = ttsSetup.speed;
-              message.data.audioEncoding = ttsSetup.audioEncoding.slice();
-            }
+            message.data.voice = ttsSetup.voice.slice();
+            message.data.language = ttsSetup.language.slice();
+            message.data.speed = ttsSetup.speed;
+            message.data.audioEncoding = ttsSetup.audioEncoding.slice();
 
             queue.push(message);
             for( let i=0; i<config.tts.threads; i++ ) {
@@ -405,6 +403,8 @@ if ( wss ) {
                 break;
               }
             }
+          } else {
+            console.error('HeadTTS Server: Rejected disallowed message type "' + message.type + '" from WebSocket client (' + id + ').');
           }
         }
       } catch(error) {
